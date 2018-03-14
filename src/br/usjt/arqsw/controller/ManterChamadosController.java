@@ -4,8 +4,10 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -14,8 +16,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import br.usjt.arqsw.entity.Chamado;
 import br.usjt.arqsw.entity.Fila;
+import br.usjt.arqsw.entity.Usuario;
 import br.usjt.arqsw.service.ChamadoService;
 import br.usjt.arqsw.service.FilaService;
+import br.usjt.arqsw.service.UsuarioService;
 
 /**
  * 
@@ -26,10 +30,14 @@ import br.usjt.arqsw.service.FilaService;
 public class ManterChamadosController {
 	private FilaService filaService;
 	private ChamadoService chamadoService;
+	private UsuarioService usuarioService;
 
-	public ManterChamadosController() {
-		filaService = new FilaService();
-		chamadoService = new ChamadoService();
+	@Autowired
+	public ManterChamadosController(FilaService filaService, ChamadoService chamadoService,
+			UsuarioService usuarioService) {
+		this.filaService = filaService;
+		this.chamadoService = chamadoService;
+		this.usuarioService = usuarioService;
 	}
 
 	/**
@@ -57,9 +65,14 @@ public class ManterChamadosController {
 		chamadoService.fecharChamado(ids);
 	}
 
+	private Usuario logarUsuario(Usuario usuario) throws IOException {
+		return usuarioService.logarUsuario(usuario);
+	}
+
 	/**
 	 * 
-	 * @param model *            Acesso à request http
+	 * @param model
+	 *            * Acesso à request http
 	 * @return JSP de escolher Fila para listar Chamados
 	 */
 	@RequestMapping("/fila_consultar")
@@ -72,6 +85,7 @@ public class ManterChamadosController {
 			return "Erro";
 		}
 	}
+
 	/**
 	 * 
 	 * @param model
@@ -90,27 +104,29 @@ public class ManterChamadosController {
 
 	/**
 	 * 
-	 * @param selected = String contendo id's dos Chamados com checkbox marcado
+	 * @param selected
+	 *            = String contendo id's dos Chamados com checkbox marcado
 	 * @param model
-	 * @return JSP index, com toast/snackbar de "sucesso" dizendo quais foram as id's fechadas
+	 * @return JSP index, com toast/snackbar de "sucesso" dizendo quais foram as
+	 *         id's fechadas
 	 */
 	@RequestMapping("/chamado_aberto_fechar")
 	public String fecharChamadoAberto(@RequestParam(value = "selected", required = true) String selected, Model model) {
-		try{
-		String strings[] = selected.split(",");
-		int ids[] = new int[strings.length];
-		for (int i = 0; i < strings.length; i++) {
-			ids[i] = Integer.parseInt(strings[i].toString());
-		}
-		fecharChamado(ids);
-		model.addAttribute("snackbarAlert", "Chamado(s) #"+selected+" fechado(s)!");
-		return "index";
+		try {
+			String strings[] = selected.split(",");
+			int ids[] = new int[strings.length];
+			for (int i = 0; i < strings.length; i++) {
+				ids[i] = Integer.parseInt(strings[i].toString());
+			}
+			fecharChamado(ids);
+			model.addAttribute("snackbarAlert", "Chamado(s) #" + selected + " fechado(s)!");
+			return "index";
 		} catch (IOException e) {
 			e.printStackTrace();
 			return "Erro";
 		}
 	}
-	
+
 	/**
 	 * 
 	 * @param model
@@ -126,11 +142,14 @@ public class ManterChamadosController {
 			return "Erro";
 		}
 	}
+
 	/**
 	 * 
-	 * @param chamado = Chamado carregando Descrição e Fila
+	 * @param chamado
+	 *            = Chamado carregando Descrição e Fila
 	 * @param result
-	 * @param model = texto do snackbar definido
+	 * @param model
+	 *            = texto do snackbar definido
 	 * @return JSP index, com toast/snackbar de "sucesso"
 	 */
 	@RequestMapping("/chamado_criar")
@@ -149,9 +168,11 @@ public class ManterChamadosController {
 
 	/**
 	 * 
-	 * @param fila = Fila contendo id escolhida
+	 * @param fila
+	 *            = Fila contendo id escolhida
 	 * @param result
-	 * @param model = lista de Chamados, Fila.nome
+	 * @param model
+	 *            = lista de Chamados, Fila.nome
 	 * @return JSP com tabela listando Chamados
 	 */
 	@RequestMapping("/chamado_listar")
@@ -179,11 +200,14 @@ public class ManterChamadosController {
 			return "Erro";
 		}
 	}
+
 	/**
 	 * 
-	 * @param fila = Fila contendo id escolhido
+	 * @param fila
+	 *            = Fila contendo id escolhido
 	 * @param result
-	 * @param model lista de Chamados Abertos, Fila.nome
+	 * @param model
+	 *            lista de Chamados Abertos, Fila.nome
 	 * @return JSP com tabela listando Chamados Abertos, candidatos a serem fechados
 	 */
 	@RequestMapping("/chamado_aberto_listar")
@@ -205,6 +229,32 @@ public class ManterChamadosController {
 
 			model.addAttribute("listaChamados", listaChamados);
 			return "chamado_aberto_listar";
+
+		} catch (IOException e) {
+			e.printStackTrace();
+			return "Erro";
+		}
+	}
+
+	@RequestMapping("/login")
+	public String login(Model model) {
+			return "login";
+	}
+
+	@RequestMapping("/usuario_logar")
+	public String usuarioLogar(@Valid Usuario usuario, BindingResult result, Model model, HttpSession session) {
+		try {
+
+			Usuario u = logarUsuario(usuario);
+			if (u != null) {
+				
+				System.out.println("usuarioLogar : " + usuario.toString());
+				session.setAttribute("usuarioLogado", u);
+				return "index";
+			}
+			
+			model.addAttribute("snackbarAlert", "Login inválido!");
+			return "login";
 
 		} catch (IOException e) {
 			e.printStackTrace();
