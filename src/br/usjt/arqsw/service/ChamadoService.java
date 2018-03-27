@@ -1,13 +1,14 @@
 package br.usjt.arqsw.service;
 
 import java.io.IOException;
-import java.util.ArrayList;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import br.usjt.arqsw.dao.ChamadoDAO;
 import br.usjt.arqsw.entity.Chamado;
+import br.usjt.arqsw.entity.Fila;
 /**
  * 
  * @author RA816124368 Pedro Gallon Alves CCP3AN-MCA1
@@ -27,8 +28,8 @@ public class ChamadoService {
 	 * @return Lista de Chamados Abertos
 	 * @throws IOException
 	 */
-	public ArrayList<Chamado> listarChamados(int idFila) throws IOException{
-		return dao.listarChamados(idFila);
+	public List<Chamado> listarChamados(Fila fila) throws IOException{
+		return dao.listarChamados(fila);
 	}
 	/**
 	 * 
@@ -36,8 +37,8 @@ public class ChamadoService {
 	 * @return Lista de Chamados Abertos
 	 * @throws IOException
 	 */
-	public ArrayList<Chamado> listarChamadosAbertos(int idFila) throws IOException{
-		return dao.listarChamadosAbertos(idFila);
+	public List<Chamado> listarChamadosAbertos(Fila fila) throws IOException{
+		return dao.listarChamadosAbertos(fila);
 	}
 //	public Chamado carregarChamado(int id) throws IOException{
 //		return dao.carregarChamado(id);

@@ -1,5 +1,8 @@
 package br.usjt.arqsw.entity;
 
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
 import javax.validation.constraints.NotNull;
 
 /**
@@ -7,10 +10,14 @@ import javax.validation.constraints.NotNull;
  * @author RA816124368 Pedro Gallon Alves CCP3AN-MCA1
  *
  */
+@Entity
 public class Usuario {
 	@NotNull
+	@Id
+	@Column(name="ID_USUARIO")
 	private String id;
 	@NotNull
+	@Column(name="PW_USUARIO")
 	private String pw;
 	public String getId() {
 		return id;

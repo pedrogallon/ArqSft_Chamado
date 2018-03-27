@@ -11,8 +11,8 @@
 			<attribute name="owner.project.facets" value="jst.web"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="con" path="org.eclipse.jst.j2ee.internal.web.container"/>
 	<classpathentry kind="con" path="org.eclipse.jst.j2ee.internal.module.container"/>
+	<classpathentry kind="con" path="org.eclipse.jst.j2ee.internal.web.container"/>
 	<classpathentry kind="lib" path="WebContent/WEB-INF/lib/antlr-2.7.7.jar"/>
 	<classpathentry kind="lib" path="WebContent/WEB-INF/lib/aopalliance-1.0.jar"/>
 	<classpathentry kind="lib" path="WebContent/WEB-INF/lib/classmate-1.1.0.jar"/>
@@ -43,5 +43,11 @@
 	<classpathentry kind="lib" path="WebContent/WEB-INF/lib/spring-webmvc-4.2.4.RELEASE.jar"/>
 	<classpathentry kind="lib" path="WebContent/WEB-INF/lib/validation-api-1.1.0.Final.jar"/>
 	<classpathentry kind="lib" path="WebContent/WEB-INF/lib/xml-apis-1.0.b2.jar"/>
+	<classpathentry kind="lib" path="WebContent/WEB-INF/lib/jboss-logging-annotations-1.2.0.Final.jar"/>
+	<classpathentry kind="lib" path="WebContent/WEB-INF/lib/jboss-transaction-api_1.2_spec-1.0.0.Final.jar"/>
+	<classpathentry kind="lib" path="WebContent/WEB-INF/lib/jta-1.1.jar"/>
+	<classpathentry kind="lib" path="WebContent/WEB-INF/lib/spring-jdbc-4.2.4.RELEASE.jar"/>
+	<classpathentry kind="lib" path="WebContent/WEB-INF/lib/spring-orm-4.2.4.RELEASE.jar"/>
+	<classpathentry kind="lib" path="WebContent/WEB-INF/lib/spring-tx-4.2.4.RELEASE.jar"/>
 	<classpathentry kind="output" path="build/classes"/>
 </classpath>

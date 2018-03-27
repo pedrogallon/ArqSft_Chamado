@@ -1,10 +1,10 @@
 package br.usjt.arqsw.controller;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.servlet.http.HttpSession;
+import javax.transaction.Transactional;
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,6 +26,7 @@ import br.usjt.arqsw.service.UsuarioService;
  * @author RA816124368 Pedro Gallon Alves CCP3AN-MCA1
  *
  */
+@Transactional
 @Controller
 public class ManterChamadosController {
 	private FilaService filaService;
@@ -53,12 +54,12 @@ public class ManterChamadosController {
 		return filaService.listarFilas();
 	}
 
-	private ArrayList<Chamado> listarChamados(int idFila) throws IOException {
-		return chamadoService.listarChamados(idFila);
+	private List<Chamado> listarChamados(Fila fila) throws IOException {
+		return chamadoService.listarChamados(fila);
 	}
 
-	private ArrayList<Chamado> listarChamadosAbertos(int idFila) throws IOException {
-		return chamadoService.listarChamadosAbertos(idFila);
+	private List<Chamado> listarChamadosAbertos(Fila fila) throws IOException {
+		return chamadoService.listarChamadosAbertos(fila);
 	}
 
 	private void fecharChamado(int ids[]) throws IOException {
@@ -153,9 +154,12 @@ public class ManterChamadosController {
 	 * @return JSP index, com toast/snackbar de "sucesso"
 	 */
 	@RequestMapping("/chamado_criar")
-	public String chamadoCriar(@Valid Chamado chamado, BindingResult result, Model model) {
+	public String chamadoCriar( @RequestParam(value = "idFila", required = true) int id, @Valid Chamado chamado, BindingResult result, Model model) {
 		try {
 			System.out.println(chamado.toString());
+//			int idx = Integer.parseInt(id);
+			Fila fila = filaService.carregarFila(id);
+			chamado.setFila(fila);
 			chamadoService.criarChamado(chamado);
 			model.addAttribute("snackbarAlert", "Chamado criado!");
 			System.out.println("chamadoCriar : " + chamado.toString());
@@ -168,8 +172,7 @@ public class ManterChamadosController {
 
 	/**
 	 * 
-	 * @param fila
-	 *            = Fila contendo id escolhida
+	 * @param fila = Fila contendo id escolhida
 	 * @param result
 	 * @param model
 	 *            = lista de Chamados, Fila.nome
@@ -189,9 +192,7 @@ public class ManterChamadosController {
 
 			System.out.println("chamadoListar : " + fila.toString());
 
-			ArrayList<Chamado> listaChamados = new ArrayList<>();
-			listaChamados = listarChamados(fila.getId());
-
+			List<Chamado> listaChamados = chamadoService.listarChamados(fila);
 			model.addAttribute("listaChamados", listaChamados);
 			return "chamado_listar";
 
@@ -203,8 +204,7 @@ public class ManterChamadosController {
 
 	/**
 	 * 
-	 * @param fila
-	 *            = Fila contendo id escolhido
+	 * @param fila = Fila contendo id escolhido
 	 * @param result
 	 * @param model
 	 *            lista de Chamados Abertos, Fila.nome
@@ -224,9 +224,7 @@ public class ManterChamadosController {
 
 			System.out.println("chamadoListar : " + fila.toString());
 
-			ArrayList<Chamado> listaChamados = new ArrayList<>();
-			listaChamados = listarChamadosAbertos(fila.getId());
-
+			List<Chamado> listaChamados = chamadoService.listarChamadosAbertos(fila);
 			model.addAttribute("listaChamados", listaChamados);
 			return "chamado_aberto_listar";
 

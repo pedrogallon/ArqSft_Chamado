@@ -1,14 +1,12 @@
 package br.usjt.arqsw.dao;
 
 import java.io.IOException;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.util.List;
 
-import javax.sql.DataSource;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+import javax.persistence.Query;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import br.usjt.arqsw.entity.Usuario;
@@ -20,22 +18,8 @@ import br.usjt.arqsw.entity.Usuario;
  */
 @Repository
 public class UsuarioDAO {
-	private Connection conn;
-
-	
-	/**
-	 * 
-	 * @param dataSource = Parametros de conexão com DB
-	 * @throws IOException
-	 */
-	@Autowired
-	public UsuarioDAO(DataSource dataSource) throws IOException {
-		try {
-			this.conn = dataSource.getConnection();
-		} catch (SQLException e) {
-			throw new IOException(e);
-		}
-	}
+	@PersistenceContext
+	EntityManager manager;
 
 	/**
 	 * 
@@ -44,22 +28,17 @@ public class UsuarioDAO {
 	 * @throws IOException
 	 */
 	public Usuario logarUsuario(Usuario usuario) throws IOException {
-		String query = "SELECT ID_USUARIO, PW_USUARIO FROM servicedesk.USUARIO WHERE ID_USUARIO=? AND PW_USUARIO=?";
+		String jpql = "select u from Usuario u where u.id = :id and u.pw = :pw";
 
-		try (PreparedStatement pst = conn.prepareStatement(query);) {
-			pst.setString(1, usuario.getId());
-			pst.setString(2, usuario.getPw());
-			try (ResultSet rs = pst.executeQuery();) {
+		Query query = manager.createQuery(jpql);
+		query.setParameter("id", usuario.getId());
+		query.setParameter("pw", usuario.getPw());
 
-				while (rs.next()) {
-					return usuario;
-				}
-			}
-
-		} catch (SQLException e) {
-			throw new IOException(e);
+		List<Usuario> result = query.getResultList();
+		if (result.size()==0) {
+			return null;
 		}
-		return null;
+		return result.get(0);
 	}
 
 }

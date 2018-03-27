@@ -1,18 +1,17 @@
 package br.usjt.arqsw.dao;
 
 import java.io.IOException;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
-import javax.sql.DataSource;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+import javax.persistence.Query;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import br.usjt.arqsw.entity.Chamado;
+import br.usjt.arqsw.entity.Fila;
 
 /**
  * 
@@ -22,21 +21,8 @@ import br.usjt.arqsw.entity.Chamado;
 
 @Repository
 public class ChamadoDAO {
-	private Connection conn;
-
-	/**
-	 * 
-	 * @param dataSource = Parametros de conexão com DB
-	 * @throws IOException
-	 */
-	@Autowired
-	public ChamadoDAO(DataSource dataSource) throws IOException {
-		try {
-			this.conn = dataSource.getConnection();
-		} catch (SQLException e) {
-			throw new IOException(e);
-		}
-	}
+	@PersistenceContext
+	EntityManager manager;
 
 	/**
 	 * 
@@ -45,30 +31,16 @@ public class ChamadoDAO {
 	 * @return ArrayList de todos os Chamados com Fila.id correspondente
 	 * @throws IOException
 	 */
-	public ArrayList<Chamado> listarChamados(int idFila) throws IOException {
-		String query = "SELECT ID_CHAMADO, DESCRICAO, STATUS, DT_ABERTURA, DT_FECHAMENTO, ID_FILA FROM servicedesk.chamado WHERE ID_FILA=?; ";
-		ArrayList<Chamado> chamados = new ArrayList<>();
-		try (PreparedStatement pst = conn.prepareStatement(query);) {
-			pst.setInt(1, idFila);
-			try (ResultSet rs = pst.executeQuery();) {
+	public List<Chamado> listarChamados(Fila fila) throws IOException {
+		fila = manager.find(Fila.class, fila.getId());
 
-				while (rs.next()) {
-					Chamado chamado = new Chamado();
-					chamado.setId(rs.getInt("ID_CHAMADO"));
-					chamado.setDescricao(rs.getString("DESCRICAO"));
-					chamado.setStatus(rs.getString("STATUS"));
-					chamado.setDataAbertura(rs.getDate("DT_ABERTURA"));
-					chamado.setDataFechamento(rs.getDate("DT_FECHAMENTO"));
-					chamado.setIdFila(rs.getInt("ID_FILA"));
+		String jpql = "select c from Chamado c where c.fila = :fila";
 
-					chamados.add(chamado);
-				}
-			}
+		Query query = manager.createQuery(jpql);
+		query.setParameter("fila", fila);
 
-		} catch (SQLException e) {
-			throw new IOException(e);
-		}
-		return chamados;
+		List<Chamado> result = query.getResultList();
+		return result;
 	}
 
 	/**
@@ -78,30 +50,18 @@ public class ChamadoDAO {
 	 * @return ArrayList de todos os Chamados Abertos com Fila.id correspondente
 	 * @throws IOException
 	 */
-	public ArrayList<Chamado> listarChamadosAbertos(int idFila) throws IOException {
-		String query = "SELECT ID_CHAMADO, DESCRICAO, STATUS, DT_ABERTURA, DT_FECHAMENTO, ID_FILA FROM servicedesk.chamado WHERE ID_FILA=? AND STATUS = 'aberto'; ";
-		ArrayList<Chamado> chamados = new ArrayList<>();
-		try (PreparedStatement pst = conn.prepareStatement(query);) {
-			pst.setInt(1, idFila);
-			try (ResultSet rs = pst.executeQuery();) {
+	public List<Chamado> listarChamadosAbertos(Fila fila) throws IOException {
+		// conectei minha fila com a persistencia
+		fila = manager.find(Fila.class, fila.getId());
 
-				while (rs.next()) {
-					Chamado chamado = new Chamado();
-					chamado.setId(rs.getInt("ID_CHAMADO"));
-					chamado.setDescricao(rs.getString("DESCRICAO"));
-					chamado.setStatus(rs.getString("STATUS"));
-					chamado.setDataAbertura(rs.getDate("DT_ABERTURA"));
-					chamado.setDataFechamento(rs.getDate("DT_FECHAMENTO"));
-					chamado.setIdFila(rs.getInt("ID_FILA"));
+		String jpql = "select c from Chamado c where c.fila = :fila and c.status = :status";
 
-					chamados.add(chamado);
-				}
-			}
+		Query query = manager.createQuery(jpql);
+		query.setParameter("fila", fila);
+		query.setParameter("status", Chamado.ABERTO);
 
-		} catch (SQLException e) {
-			throw new IOException(e);
-		}
-		return chamados;
+		List<Chamado> result = query.getResultList();
+		return result;
 	}
 
 	// public Chamado carregarChamado(int id) throws IOException {
@@ -137,20 +97,9 @@ public class ChamadoDAO {
 	 * @throws IOException
 	 */
 	public void criarChamado(Chamado chamado) throws IOException {
-		String query = "INSERT INTO CHAMADO (DESCRICAO, STATUS, DT_ABERTURA, ID_FILA) VALUE(?, ?, ?, ?); ";
-		try (PreparedStatement pst = conn.prepareStatement(query);) {
-			java.sql.Timestamp date = new java.sql.Timestamp(new java.util.Date().getTime());
-
-			pst.setString(1, chamado.getDescricao());
-			pst.setString(2, "aberto");
-			pst.setTimestamp(3, date);
-			pst.setInt(4, chamado.getIdFila());
-
-			pst.execute();
-
-		} catch (SQLException e) {
-			throw new IOException(e);
-		}
+		chamado.setDataAbertura(new Date());
+		chamado.setStatus("aberto");
+		manager.persist(chamado);
 	}
 
 	/**
@@ -160,24 +109,15 @@ public class ChamadoDAO {
 	 *            fechado e dt_fechamento = data atual
 	 * @throws IOException
 	 */
-	public void fecharChamado(int ids[]) throws IOException {
-		String setup = "";
-		for (int i = 0; i < ids.length; i++) {
-			setup += ids[i];
-			if (i < ids.length - 1)
-				setup += ",";
+	public void fecharChamado(int[] lista) throws IOException {
+
+		for (int id : lista) {
+			Chamado chamado = manager.find(Chamado.class, id);
+			chamado.setDataFechamento(new java.util.Date());
+			chamado.setStatus(Chamado.FECHADO);
+			manager.merge(chamado);
 		}
 
-		java.sql.Timestamp date = new java.sql.Timestamp(new java.util.Date().getTime());
-		String query = "UPDATE servicedesk.chamado SET STATUS='fechado', DT_FECHAMENTO=? WHERE ID_CHAMADO IN (" + setup
-				+ ");";
-		try (PreparedStatement pst = conn.prepareStatement(query);) {
-			pst.setTimestamp(1, date);
-
-			pst.execute();
-		} catch (SQLException e) {
-			throw new IOException(e);
-		}
 	}
 
 }

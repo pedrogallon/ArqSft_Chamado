@@ -22,7 +22,7 @@
     <!-- Container Principal -->
     <div id="main" class="container">
         <h3 class="page-header">Consultar Chamados Abertos</h3>
-        <form action="chamado_aberto_listar" method="post">
+        <form action="chamado_aberto_listar" method="get">
             <div class="row">
                 <div class="form-group col-md-4">
                     <label for="fila">Escolha a Fila:</label>

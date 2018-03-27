@@ -56,7 +56,7 @@
 					</tbody>
 				</table>
 				<div class="pull-right">
-					<button class="btn btn-danger" onclick="apagarChamados();" >Apagar</button>
+					<button class="btn btn-danger" onclick="apagarChamados();" >Fechar</button>
 					<button class="btn btn=default" onclick="document.location.href='index';">Cancelar</button>
 					
 				</div>
