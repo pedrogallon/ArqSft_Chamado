@@ -17,7 +17,7 @@ public class LoginInterceptor extends HandlerInterceptorAdapter {
 	public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object controller)
 			throws Exception {
 		String uri = request.getRequestURI();
-		if (uri.endsWith("login") || uri.endsWith("usuario_logar") || uri.contains("css") || uri.contains("js") || uri.contains("img")
+		if (uri.contains("rest") || uri.endsWith("login") || uri.endsWith("usuario_logar") || uri.contains("css") || uri.contains("js") || uri.contains("img")
 				) {
 			
 			return true;

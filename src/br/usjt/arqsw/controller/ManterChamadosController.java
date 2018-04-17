@@ -54,10 +54,12 @@ public class ManterChamadosController {
 		return filaService.listarFilas();
 	}
 
+	@SuppressWarnings("unused")
 	private List<Chamado> listarChamados(Fila fila) throws IOException {
 		return chamadoService.listarChamados(fila);
 	}
 
+	@SuppressWarnings("unused")
 	private List<Chamado> listarChamadosAbertos(Fila fila) throws IOException {
 		return chamadoService.listarChamadosAbertos(fila);
 	}

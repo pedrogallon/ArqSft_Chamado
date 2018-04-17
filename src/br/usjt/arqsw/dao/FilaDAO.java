@@ -24,6 +24,7 @@ public class FilaDAO {
 	 * @return ArryList com todas as filas
 	 * @throws IOException
 	 */
+	@SuppressWarnings("unchecked")
 	public List<Fila> listarFilas() throws IOException {
 		return manager.createQuery("select f from Fila f").getResultList();
 	}

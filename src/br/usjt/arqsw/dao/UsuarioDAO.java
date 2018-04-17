@@ -27,6 +27,7 @@ public class UsuarioDAO {
 	 * @return Caso encontre um usuario com tal id e senha, return Usuario. Caso contrário, return null
 	 * @throws IOException
 	 */
+	@SuppressWarnings("unchecked")
 	public Usuario logarUsuario(Usuario usuario) throws IOException {
 		String jpql = "select u from Usuario u where u.id = :id and u.pw = :pw";
 

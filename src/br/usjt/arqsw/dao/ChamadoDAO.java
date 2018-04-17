@@ -31,6 +31,7 @@ public class ChamadoDAO {
 	 * @return ArrayList de todos os Chamados com Fila.id correspondente
 	 * @throws IOException
 	 */
+	@SuppressWarnings("unchecked")
 	public List<Chamado> listarChamados(Fila fila) throws IOException {
 		fila = manager.find(Fila.class, fila.getId());
 
@@ -38,6 +39,16 @@ public class ChamadoDAO {
 
 		Query query = manager.createQuery(jpql);
 		query.setParameter("fila", fila);
+
+		List<Chamado> result = query.getResultList();
+		return result;
+	}
+	
+	@SuppressWarnings("unchecked")
+	public List<Chamado> listarChamados() throws IOException {
+		
+
+		Query query = manager.createQuery("select c from Chamado c");
 
 		List<Chamado> result = query.getResultList();
 		return result;
@@ -50,6 +61,7 @@ public class ChamadoDAO {
 	 * @return ArrayList de todos os Chamados Abertos com Fila.id correspondente
 	 * @throws IOException
 	 */
+	@SuppressWarnings("unchecked")
 	public List<Chamado> listarChamadosAbertos(Fila fila) throws IOException {
 		// conectei minha fila com a persistencia
 		fila = manager.find(Fila.class, fila.getId());
